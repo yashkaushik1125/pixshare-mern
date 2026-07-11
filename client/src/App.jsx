@@ -9,8 +9,10 @@ import Register from "./pages/Register.jsx";
 import Feed from "./pages/Feed.jsx";
 import Post from "./pages/Post.jsx";
 import ImageDetail from "./pages/ImageDetail.jsx";
+import ListingDetail from "./pages/ListingDetail.jsx";
 import Profile from "./pages/Profile.jsx";
 import Admin from "./pages/Admin.jsx";
+import Home from "./pages/Home.jsx";
 
 export default function App() {
   const { user, loading } = useAuth();
@@ -23,13 +25,17 @@ export default function App() {
       <Routes>
         <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
         <Route path="/register" element={user ? <Navigate to="/" /> : <Register />} />
-
+        <Route path="/home" element={<Home />} />
         <Route
           path="/"
           element={
-            <ProtectedRoute>
-              <Feed />
-            </ProtectedRoute>
+            user ? (
+              <ProtectedRoute>
+                <Feed />
+              </ProtectedRoute>
+            ) : (
+              <Home />
+            )
           }
         />
         <Route
@@ -40,6 +46,7 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        <Route path="/listing/:id" element={<ListingDetail />} />
         <Route
           path="/post"
           element={

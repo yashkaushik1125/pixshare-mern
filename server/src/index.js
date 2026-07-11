@@ -10,6 +10,7 @@ import { UPLOAD_DIR } from "./middleware/upload.js";
 import authRoutes from "./routes/auth.js";
 import imageRoutes from "./routes/images.js";
 import userRoutes from "./routes/users.js";
+import listingsRoutes from "./routes/listings.js";
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -38,7 +39,7 @@ app.use(
 app.get("/api/config", (_req, res) => {
   res.set("Cache-Control", "public, max-age=300");
   res.json({
-    name: process.env.APP_NAME || "PixShare",
+    name: process.env.APP_NAME || "भूमि पूजन",
     description: process.env.APP_DESCRIPTION || "Discover and share beautiful moments",
     primaryColor: process.env.APP_PRIMARY_COLOR || "#6C5CE7",
     accentColor: process.env.APP_ACCENT_COLOR || "#00CEC9",
@@ -51,6 +52,7 @@ app.get("/api/health", (_req, res) => res.json({ ok: true }));
 app.use("/api/auth", authRoutes);
 app.use("/api/images", imageRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/listings", listingsRoutes);
 
 // Centralised error handler (covers multer upload errors and thrown errors).
 // eslint-disable-next-line no-unused-vars

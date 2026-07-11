@@ -46,7 +46,7 @@ export default function ImageDetail() {
   return (
     <div className="container">
       <Link to="/" className="nav-link" style={{ display: "inline-block", marginBottom: 14 }}>
-        ← Back to feed
+        ← Back to listings
       </Link>
       <div className="card">
         <img className="card-img" src={resolveImageUrl(image.url)} alt={image.caption} />
@@ -67,8 +67,8 @@ export default function ImageDetail() {
           </div>
           {canDelete && (
             <button className="btn btn-danger btn-sm mt"
-              onClick={() => window.confirm("Delete this image?") && deleteMutation.mutate()}>
-              Delete image
+              onClick={() => window.confirm("Delete this listing?") && deleteMutation.mutate()}>
+              Delete listing
             </button>
           )}
         </div>

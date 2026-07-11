@@ -44,24 +44,40 @@ export default function Post() {
   return (
     <div className="container">
       <div className="page-head">
-        <h1>Share an image</h1>
-        <p>Posting as {user.name}</p>
+        <h1>Create listing</h1>
+        <p>Listing as {user.name}</p>
       </div>
       {error && <div className="flash flash-error">{error}</div>}
       <form onSubmit={submit}>
-        {preview && <img className="card-img" src={preview} alt="preview"
-          style={{ borderRadius: 14, marginBottom: 14 }} />}
-        <label className="label">Upload from your computer</label>
+        {preview && (
+          <img
+            className="card-img"
+            src={preview}
+            alt="preview"
+            style={{ borderRadius: 20, marginBottom: 18 }}
+          />
+        )}
+        <label className="label">Upload property image</label>
         <input className="input" type="file" accept="image/*" onChange={onPick} />
         <div className="divider">— or —</div>
-        <label className="label">Paste an image URL</label>
-        <input className="input" type="url" placeholder="https://example.com/photo.jpg"
-          value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
-        <label className="label">Caption</label>
-        <textarea className="input" rows="3" placeholder="Write a caption..."
-          value={caption} onChange={(e) => setCaption(e.target.value)} />
+        <label className="label">Use a photo URL</label>
+        <input
+          className="input"
+          type="url"
+          placeholder="https://example.com/property.jpg"
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
+        />
+        <label className="label">Property description</label>
+        <textarea
+          className="input"
+          rows="4"
+          placeholder="Describe the home or land for sale..."
+          value={caption}
+          onChange={(e) => setCaption(e.target.value)}
+        />
         <button className="btn btn-block" disabled={mutation.isPending}>
-          {mutation.isPending ? "Posting..." : "Post to feed"}
+          {mutation.isPending ? "Listing..." : "Publish listing"}
         </button>
       </form>
     </div>

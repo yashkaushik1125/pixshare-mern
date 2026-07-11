@@ -52,8 +52,8 @@ export default function Admin() {
   return (
     <div className="container">
       <div className="page-head">
-        <h1>User management</h1>
-        <p>Create users and control what each role can do.</p>
+        <h1>Team management</h1>
+        <p>Create users and assign broker or viewer access.</p>
       </div>
 
       <div className="card" style={{ padding: 18 }}>

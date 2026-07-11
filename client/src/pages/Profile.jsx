@@ -39,11 +39,11 @@ export default function Profile() {
       </div>
 
       <div className="stats">
-        <div className="stat"><div className="num">{mine.length}</div><div className="lbl">Posts</div></div>
-        <div className="stat"><div className="num">{totalLikes}</div><div className="lbl">Likes</div></div>
+        <div className="stat"><div className="num">{mine.length}</div><div className="lbl">Listings</div></div>
+        <div className="stat"><div className="num">{totalLikes}</div><div className="lbl">Total Interest</div></div>
       </div>
 
-      <h2 style={{ margin: "18px 0 10px", fontSize: 18 }}>Your permissions</h2>
+      <h2 style={{ margin: "18px 0 10px", fontSize: 18 }}>Your broker access</h2>
       <div className="profile-card" style={{ textAlign: "left" }}>
         <ul className="cap-list">
           {CAP_LABELS.map(([key, label]) => (

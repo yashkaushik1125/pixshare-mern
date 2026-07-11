@@ -16,12 +16,28 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-inner">
-        <NavLink to="/" className="brand">{name}</NavLink>
-        <NavLink to="/" end className="nav-link">Feed</NavLink>
-        {caps.post && <NavLink to="/post" className="nav-link">Post</NavLink>}
-        {caps.manageUsers && <NavLink to="/admin" className="nav-link">Admin</NavLink>}
-        <NavLink to="/profile" className="nav-link">Profile</NavLink>
-        <button className="nav-link" onClick={onLogout}>Logout</button>
+        <NavLink to="/" className="brand">
+          {name}
+        </NavLink>
+        <NavLink to="/" end className="nav-link">
+          Listings
+        </NavLink>
+        {caps.post && (
+          <NavLink to="/post" className="nav-link">
+            Create
+          </NavLink>
+        )}
+        {caps.manageUsers && (
+          <NavLink to="/admin" className="nav-link">
+            Team
+          </NavLink>
+        )}
+        <NavLink to="/profile" className="nav-link">
+          Profile
+        </NavLink>
+        <button className="nav-link" onClick={onLogout}>
+          Logout
+        </button>
       </div>
     </nav>
   );

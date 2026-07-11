@@ -2,14 +2,26 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { api } from "../api/client";
 
 const DEFAULTS = {
-  name: "PixShare",
-  description: "Discover and share beautiful moments",
-  primaryColor: "#6C5CE7",
-  accentColor: "#00CEC9",
+  name: "भूमि पूजन",
+  description: "Trusted land and home listings from licensed brokers.",
+  primaryColor: "#2563eb",
+  accentColor: "#06b6d4",
   roles: {
-    admin: { label: "Admin", color: "#E74C3C", can: { view: true, post: true, manageUsers: true, deleteAny: true } },
-    editor: { label: "Editor", color: "#6C5CE7", can: { view: true, post: true, manageUsers: false, deleteAny: false } },
-    viewer: { label: "Viewer", color: "#00B894", can: { view: true, post: false, manageUsers: false, deleteAny: false } },
+    admin: {
+      label: "Admin",
+      color: "#1d4ed8",
+      can: { view: true, post: true, manageUsers: true, deleteAny: true },
+    },
+    editor: {
+      label: "Broker",
+      color: "#2563eb",
+      can: { view: true, post: true, manageUsers: false, deleteAny: false },
+    },
+    viewer: {
+      label: "Viewer",
+      color: "#0f766e",
+      can: { view: true, post: false, manageUsers: false, deleteAny: false },
+    },
   },
 };
 

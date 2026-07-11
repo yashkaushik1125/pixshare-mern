@@ -35,7 +35,7 @@ export default function Register() {
         <div className="auth-card">
           <h2>Create your account</h2>
           <p className="muted" style={{ marginBottom: 18 }}>
-            New accounts can browse and like images (viewer access).
+            New accounts can browse properties and discover broker listings.
           </p>
           {error && <div className="flash flash-error">{error}</div>}
           <form onSubmit={submit}>
