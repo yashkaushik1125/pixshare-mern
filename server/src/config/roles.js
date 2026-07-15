@@ -3,17 +3,17 @@
 export const ROLES = {
   admin: {
     label: "Admin",
-    color: "#E74C3C",
+    color: "#d4af37",
     can: { view: true, post: true, manageUsers: true, deleteAny: true },
   },
   editor: {
     label: "Editor",
-    color: "#6C5CE7",
+    color: "#f5f5f5",
     can: { view: true, post: true, manageUsers: false, deleteAny: false },
   },
   viewer: {
     label: "Viewer",
-    color: "#00B894",
+    color: "#9ca3af",
     can: { view: true, post: false, manageUsers: false, deleteAny: false },
   },
 };

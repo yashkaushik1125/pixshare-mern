@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useConfig } from "../context/ConfigContext.jsx";
+import PublicNavbar from "../components/PublicNavbar.jsx";
 
 export default function Register() {
   const { register } = useAuth();
@@ -26,7 +27,9 @@ export default function Register() {
   };
 
   return (
-    <div className="auth-wrap">
+    <>
+      <PublicNavbar />
+      <div className="auth-wrap">
       <div style={{ width: "100%", maxWidth: 410 }}>
         <div className="auth-hero">
           <h1>{name}</h1>
@@ -55,6 +58,7 @@ export default function Register() {
           <Link to="/login" className="btn btn-ghost btn-block">Sign in instead</Link>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

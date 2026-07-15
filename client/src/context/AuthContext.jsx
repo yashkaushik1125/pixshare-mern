@@ -51,8 +51,11 @@ export function AuthProvider({ children }) {
     setUser(null);
   }, []);
 
+  // Replace the logged-in user in state (after a profile update).
+  const updateUser = useCallback((nextUser) => setUser(nextUser), []);
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );

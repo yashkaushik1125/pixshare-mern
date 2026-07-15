@@ -10,7 +10,7 @@ export default function Navbar() {
 
   const onLogout = () => {
     logout();
-    navigate("/login");
+    navigate("/");
   };
 
   return (
@@ -25,6 +25,11 @@ export default function Navbar() {
         {caps.post && (
           <NavLink to="/post" className="nav-link">
             Create
+          </NavLink>
+        )}
+        {caps.post && (
+          <NavLink to="/my-listings" className="nav-link">
+            My listings
           </NavLink>
         )}
         {caps.manageUsers && (

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useConfig } from "../context/ConfigContext.jsx";
+import PublicNavbar from "../components/PublicNavbar.jsx";
 
 export default function Login() {
   const { login } = useAuth();
@@ -28,7 +29,9 @@ export default function Login() {
   };
 
   return (
-    <div className="auth-wrap">
+    <>
+      <PublicNavbar />
+      <div className="auth-wrap">
       <div style={{ width: "100%", maxWidth: 460 }}>
         <div className="auth-hero">
           <h1>{name}</h1>
@@ -75,6 +78,7 @@ export default function Login() {
           </Link>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

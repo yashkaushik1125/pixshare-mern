@@ -1,10 +1,11 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, apiError } from "../api/client";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useConfig } from "../context/ConfigContext.jsx";
 import RoleBadge from "../components/RoleBadge.jsx";
-import { initials } from "../lib/format";
+import Avatar from "../components/Avatar.jsx";
 import Spinner from "../components/Spinner.jsx";
 
 export default function Admin() {
@@ -74,9 +75,12 @@ export default function Admin() {
       <h2 style={{ fontSize: 17, margin: "22px 0 12px" }}>All users</h2>
       {users.map((u) => (
         <div className="user-row" key={u.id}>
-          <span className="avatar">{initials(u.name)}</span>
+          <Avatar name={u.name} url={u.avatarUrl} size={44} />
           <div className="info">
-            <div className="name">{u.name}{u.id === user.id ? " (you)" : ""}</div>
+            <div className="name">
+              <Link to={`/users/${u.id}`} className="author-link">{u.name}</Link>
+              {u.id === user.id ? " (you)" : ""}
+            </div>
             <div className="email">{u.email}</div>
           </div>
           <RoleBadge role={u.role} />

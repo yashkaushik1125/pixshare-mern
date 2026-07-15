@@ -1,4 +1,4 @@
-import "dotenv/config";
+import "dotenv/config"; 
 import express from "express";
 import cors from "cors";
 import multer from "multer";
@@ -41,8 +41,8 @@ app.get("/api/config", (_req, res) => {
   res.json({
     name: process.env.APP_NAME || "भूमि पूजन",
     description: process.env.APP_DESCRIPTION || "Discover and share beautiful moments",
-    primaryColor: process.env.APP_PRIMARY_COLOR || "#6C5CE7",
-    accentColor: process.env.APP_ACCENT_COLOR || "#00CEC9",
+    primaryColor: process.env.APP_PRIMARY_COLOR || "#d4af37",
+    accentColor: process.env.APP_ACCENT_COLOR || "#e8c86e",
     roles: ROLES,
   });
 });

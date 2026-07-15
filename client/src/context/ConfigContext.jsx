@@ -2,24 +2,24 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { api } from "../api/client";
 
 const DEFAULTS = {
-  name: "भूमि पूजन",
+  name: "Circle ",
   description: "Trusted land and home listings from licensed brokers.",
-  primaryColor: "#2563eb",
-  accentColor: "#06b6d4",
+  primaryColor: "#d4af37",
+  accentColor: "#e8c86e",
   roles: {
     admin: {
       label: "Admin",
-      color: "#1d4ed8",
+      color: "#d4af37",
       can: { view: true, post: true, manageUsers: true, deleteAny: true },
     },
     editor: {
       label: "Broker",
-      color: "#2563eb",
+      color: "#f5f5f5",
       can: { view: true, post: true, manageUsers: false, deleteAny: false },
     },
     viewer: {
       label: "Viewer",
-      color: "#0f766e",
+      color: "#9ca3af",
       can: { view: true, post: false, manageUsers: false, deleteAny: false },
     },
   },

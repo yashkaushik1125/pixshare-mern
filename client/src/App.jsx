@@ -10,7 +10,9 @@ import Feed from "./pages/Feed.jsx";
 import Post from "./pages/Post.jsx";
 import ImageDetail from "./pages/ImageDetail.jsx";
 import ListingDetail from "./pages/ListingDetail.jsx";
+import MyListings from "./pages/MyListings.jsx";
 import Profile from "./pages/Profile.jsx";
+import UserProfile from "./pages/UserProfile.jsx";
 import Admin from "./pages/Admin.jsx";
 import Home from "./pages/Home.jsx";
 
@@ -56,6 +58,22 @@ export default function App() {
           }
         />
         <Route
+          path="/post/:id"
+          element={
+            <ProtectedRoute capability="post">
+              <Post />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/my-listings"
+          element={
+            <ProtectedRoute capability="post">
+              <MyListings />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/admin"
           element={
             <ProtectedRoute capability="manageUsers">
@@ -68,6 +86,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/users/:id"
+          element={
+            <ProtectedRoute>
+              <UserProfile />
             </ProtectedRoute>
           }
         />

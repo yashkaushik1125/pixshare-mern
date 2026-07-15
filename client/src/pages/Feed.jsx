@@ -23,6 +23,13 @@ const PROPERTY_TYPES = [
   { label: "Rental", value: "rental" },
 ];
 
+const CATEGORY_LABEL = {
+  villa: "Villa",
+  flat: "Flat",
+  bunglow: "Bungalow",
+  farm: "Farm",
+};
+
 export default function Feed() {
   const { user } = useAuth();
   const { roles } = useConfig();
@@ -91,9 +98,9 @@ export default function Feed() {
             <span
               className="badge"
               style={{
-                color: "#1d4ed8",
-                borderColor: "rgba(37, 99, 235, 0.18)",
-                background: "rgba(37, 99, 235, 0.08)",
+                color: "var(--primary)",
+                borderColor: "rgba(var(--primary-rgb), 0.18)",
+                background: "rgba(var(--primary-rgb), 0.08)",
               }}
             >
               Live listings {visible.length}
@@ -183,8 +190,13 @@ export default function Feed() {
               <div className="card-body">
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                   <div>
-                    <h3 style={{ margin: 0 }}>{listing.title}</h3>
-                    <div className="muted">📍 {listing.location} • {listing.specs}</div>
+                    {listing.category && (
+                      <span className="listing-category" style={{ marginBottom: 6 }}>
+                        {CATEGORY_LABEL[listing.category] || listing.category}
+                      </span>
+                    )}
+                    <h3 style={{ margin: "6px 0 0" }}>{listing.title}</h3>
+                    <div className="muted">📍 {listing.location}{listing.specs ? ` • ${listing.specs}` : ""}</div>
                   </div>
                   <div style={{ textAlign: "right" }}>
                     <strong>{listing.price}</strong>
