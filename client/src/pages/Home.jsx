@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { api, resolveImageUrl } from "../api/client";
+import { filterListings } from "../lib/format.js";
+import { detectCurrentCity } from "../lib/geo.js";
 
 const OPTIONS = [
   {
@@ -44,10 +46,22 @@ const CATEGORIES = [
   },
 ];
 
-// dynamic listings loaded from the API
-const LISTINGS = [];
-
 const CITIES = ["Mumbai", "Bangalore", "Pune", "Hyderabad", "Chennai", "Delhi"];
+
+const BUDGET_OPTIONS = [
+  { label: "Any budget", value: "" },
+  { label: "Under ₹50 Lakh", value: String(50 * 1e5) },
+  { label: "Under ₹1 Cr", value: String(1e7) },
+  { label: "Under ₹1.5 Cr", value: String(1.5e7) },
+  { label: "Under ₹3 Cr", value: String(3e7) },
+];
+
+const PROPERTY_TYPES = [
+  { label: "Property type", value: "any" },
+  { label: "Residential", value: "residential" },
+  { label: "Plot", value: "plot" },
+  { label: "Rental", value: "rental" },
+];
 
 const BENEFITS = [
   { title: "Verified listings", description: "All properties are posted by licensed brokers." },
@@ -55,12 +69,17 @@ const BENEFITS = [
   { title: "Secure contact", description: "Connect directly with sellers through the platform." },
 ];
 
-function Ribbon({ city, onCityChange }) {
+function Ribbon({ search, onSearchChange, city, onCityChange, onDetect, detecting }) {
   return (
     <div className="top-ribbon">
       <div className="ribbon-inner">
         <div className="ribbon-left">
-          <input className="input" placeholder="Search city, project, or landmark" />
+          <input
+            className="input"
+            placeholder="Search city, project, or landmark"
+            value={search}
+            onChange={(e) => onSearchChange(e.target.value)}
+          />
           <select
             className="input"
             value={city}
@@ -74,6 +93,16 @@ function Ribbon({ city, onCityChange }) {
               </option>
             ))}
           </select>
+          <button
+            type="button"
+            className="btn btn-ghost btn-sm detect-btn"
+            onClick={onDetect}
+            disabled={detecting}
+            style={{ marginLeft: 8, whiteSpace: "nowrap" }}
+            title="Use my current location"
+          >
+            {detecting ? "Locating…" : "📍 Near me"}
+          </button>
         </div>
         <div className="ribbon-right">
           <Link to="/register" className="btn btn-ghost">
@@ -88,35 +117,87 @@ function Ribbon({ city, onCityChange }) {
   );
 }
 
-function ListingsGrid({ city }) {
-  const { user } = useAuth();
+function ListingsGrid({ filters }) {
   const [listings, setListings] = useState([]);
+  const [loading, setLoading] = useState(true);
 
+  // Fetch by city on the server (fast narrowing), then refine the remaining
+  // filters (search text, budget, property type) on the client.
   useEffect(() => {
     let mounted = true;
-    const url = city ? `/listings?city=${encodeURIComponent(city)}` : "/listings";
+    setLoading(true);
+    const url = filters.city
+      ? `/listings?city=${encodeURIComponent(filters.city)}`
+      : "/listings";
     api
       .get(url)
       .then((r) => {
         if (mounted) setListings(r.data || []);
       })
-      .catch(() => {});
+      .catch(() => {
+        if (mounted) setListings([]);
+      })
+      .finally(() => {
+        if (mounted) setLoading(false);
+      });
     return () => (mounted = false);
-  }, [city]);
+  }, [filters.city]);
+
+  const visible = useMemo(
+    () =>
+      filterListings(listings, {
+        search: filters.search,
+        type: filters.type,
+        maxBudget: filters.maxBudget,
+        // city already applied server-side; keep client guard for safety
+        city: filters.city,
+      }),
+    [listings, filters.search, filters.type, filters.maxBudget, filters.city]
+  );
+
+  if (loading) {
+    return (
+      <div className="listing-grid">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="listing-card skeleton-card" aria-hidden="true">
+            <div className="skeleton skeleton-img" />
+            <div className="listing-copy">
+              <div className="skeleton skeleton-line short" />
+              <div className="skeleton skeleton-line" />
+              <div className="skeleton skeleton-line" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (!visible.length) {
+    return (
+      <div className="empty">
+        <span className="emoji">🔍</span>
+        <strong>No matching listings</strong>
+        <p>Try widening your budget, clearing the search, or picking another city.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="listing-grid">
-      {listings.map((listing) => (
+      {visible.map((listing, i) => (
         <article
           key={listing.id}
           className="listing-card clickable"
+          style={{ animationDelay: `${Math.min(i, 8) * 60}ms` }}
           onClick={() => window.open(`${window.location.origin}/listing/${listing.id}`, "_blank")}
         >
-          <img src={resolveImageUrl(listing.imageUrl)} alt={listing.title} />
+          <div className="listing-media">
+            <img src={resolveImageUrl(listing.imageUrl)} alt={listing.title} loading="lazy" />
+          </div>
           <div className="listing-copy">
             <span className="listing-badge">Featured</span>
             <h3>{listing.title}</h3>
-            <p className="listing-location">{listing.location}</p>
+            <p className="listing-location">📍 {listing.location}</p>
             <p className="listing-specs">{listing.specs}</p>
             <div className="listing-footer">
               <strong>{listing.price}</strong>
@@ -131,11 +212,58 @@ function ListingsGrid({ city }) {
 
 export default function Home() {
   const { user } = useAuth();
+  const [search, setSearch] = useState("");
   const [cityFilter, setCityFilter] = useState("");
+  const [budget, setBudget] = useState("");
+  const [propertyType, setPropertyType] = useState("any");
+  const [detecting, setDetecting] = useState(false);
+  const [locationNote, setLocationNote] = useState(null);
+
+  const filters = useMemo(
+    () => ({
+      search,
+      city: cityFilter,
+      type: propertyType,
+      maxBudget: budget ? Number(budget) : null,
+    }),
+    [search, cityFilter, propertyType, budget]
+  );
+
+  const hasActiveFilters =
+    search || cityFilter || budget || (propertyType && propertyType !== "any");
+
+  async function handleDetect() {
+    setDetecting(true);
+    setLocationNote(null);
+    try {
+      const { city, region } = await detectCurrentCity();
+      setCityFilter(city);
+      setLocationNote({ type: "success", text: `Showing listings near ${city}${region ? `, ${region}` : ""}.` });
+    } catch (err) {
+      setLocationNote({ type: "error", text: err.message });
+    } finally {
+      setDetecting(false);
+    }
+  }
+
+  function clearFilters() {
+    setSearch("");
+    setCityFilter("");
+    setBudget("");
+    setPropertyType("any");
+    setLocationNote(null);
+  }
 
   return (
     <main className="home-page">
-      <Ribbon city={cityFilter} onCityChange={setCityFilter} />
+      <Ribbon
+        search={search}
+        onSearchChange={setSearch}
+        city={cityFilter}
+        onCityChange={setCityFilter}
+        onDetect={handleDetect}
+        detecting={detecting}
+      />
 
       <section className="home-hero">
         <div className="home-copy">
@@ -154,16 +282,71 @@ export default function Home() {
             </Link>
           </div>
           <div className="home-search">
-            <input className="input" type="search" placeholder="Search location, project, or landmark" />
-            <input className="input" type="text" placeholder="Budget range" />
-            <select className="input">
-              <option>Property type</option>
-              <option>Residential</option>
-              <option>Plot</option>
-              <option>Rental</option>
+            <input
+              className="input"
+              type="search"
+              placeholder="Search location, project, or landmark"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <select className="input" value={budget} onChange={(e) => setBudget(e.target.value)}>
+              {BUDGET_OPTIONS.map((b) => (
+                <option key={b.label} value={b.value}>
+                  {b.label}
+                </option>
+              ))}
             </select>
-            <button className="btn btn-primary home-search-btn">Search now</button>
+            <select className="input" value={propertyType} onChange={(e) => setPropertyType(e.target.value)}>
+              {PROPERTY_TYPES.map((t) => (
+                <option key={t.value} value={t.value}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              className="btn btn-primary home-search-btn"
+              onClick={() => {
+                document.getElementById("listings")?.scrollIntoView({ behavior: "smooth" });
+              }}
+            >
+              Search now
+            </button>
           </div>
+
+          <div className="filter-utility">
+            <button
+              type="button"
+              className="btn btn-ghost btn-sm"
+              onClick={handleDetect}
+              disabled={detecting}
+            >
+              {detecting ? "Detecting location…" : "📍 Detect my location"}
+            </button>
+            {hasActiveFilters && (
+              <button type="button" className="btn btn-ghost btn-sm" onClick={clearFilters}>
+                Clear filters
+              </button>
+            )}
+            {cityFilter && <span className="filter-chip">City: {cityFilter}</span>}
+            {budget && (
+              <span className="filter-chip">
+                {BUDGET_OPTIONS.find((b) => b.value === budget)?.label}
+              </span>
+            )}
+            {propertyType !== "any" && (
+              <span className="filter-chip">
+                {PROPERTY_TYPES.find((t) => t.value === propertyType)?.label}
+              </span>
+            )}
+          </div>
+
+          {locationNote && (
+            <div className={`flash ${locationNote.type === "error" ? "flash-error" : "flash-success"}`} style={{ marginTop: 16 }}>
+              {locationNote.text}
+            </div>
+          )}
+
           <div className="hero-pill-row">
             <span className="hero-pill">For buyers</span>
             <span className="hero-pill">For owners</span>
@@ -201,10 +384,10 @@ export default function Home() {
           <p>Whether you are buying, renting, or selling, we have a tailored experience for you.</p>
         </div>
         <div className="option-grid">
-          {OPTIONS.map((option) => (
-            <article key={option.title} className="option-card">
+          {OPTIONS.map((option, i) => (
+            <article key={`${option.title}-${i}`} className="option-card" style={{ animationDelay: `${i * 70}ms` }}>
               <div className="option-image">
-                <img src={option.image} alt={option.title} />
+                <img src={option.image} alt={option.title} loading="lazy" />
               </div>
               <div className="option-body">
                 <h3>{option.title}</h3>
@@ -215,14 +398,17 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="home-listings">
+      <section className="home-listings" id="listings">
         <div className="section-head">
           <h2>Featured listings</h2>
-          <p>Popular properties handpicked from the marketplace.</p>
+          <p>
+            {hasActiveFilters
+              ? "Results matching your search and filters."
+              : "Popular properties handpicked from the marketplace."}
+          </p>
         </div>
-        <ListingsGrid city={cityFilter} />
+        <ListingsGrid filters={filters} />
       </section>
-
 
       <section className="home-categories">
         <div className="section-head">
@@ -230,9 +416,9 @@ export default function Home() {
           <p>Explore popular property types that buyers and tenants search for most.</p>
         </div>
         <div className="category-grid">
-          {CATEGORIES.map((item) => (
-            <article key={item.title} className="category-card">
-              <img src={item.image} alt={item.title} />
+          {CATEGORIES.map((item, i) => (
+            <article key={item.title} className="category-card" style={{ animationDelay: `${i * 70}ms` }}>
+              <img src={item.image} alt={item.title} loading="lazy" />
               <div className="category-copy">
                 <h3>{item.title}</h3>
                 <p>{item.subtitle}</p>
@@ -249,9 +435,17 @@ export default function Home() {
         </div>
         <div className="city-row">
           {CITIES.map((city) => (
-            <span key={city} className="city-pill">
+            <button
+              key={city}
+              type="button"
+              className={`city-pill ${cityFilter === city ? "active" : ""}`}
+              onClick={() => {
+                setCityFilter(city);
+                document.getElementById("listings")?.scrollIntoView({ behavior: "smooth" });
+              }}
+            >
               {city}
-            </span>
+            </button>
           ))}
         </div>
       </section>
@@ -262,8 +456,8 @@ export default function Home() {
           <p>Get the most comfortable property search and secure contacts with brokers.</p>
         </div>
         <div className="benefit-grid">
-          {BENEFITS.map((item) => (
-            <div key={item.title} className="benefit-card">
+          {BENEFITS.map((item, i) => (
+            <div key={item.title} className="benefit-card" style={{ animationDelay: `${i * 70}ms` }}>
               <h3>{item.title}</h3>
               <p>{item.description}</p>
             </div>

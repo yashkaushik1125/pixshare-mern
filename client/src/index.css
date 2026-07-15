@@ -1202,3 +1202,210 @@ select.input {
     font-size: 2.25rem;
   }
 }
+
+/* ============================================================
+   Search & filter toolbar
+   ============================================================ */
+.filter-bar {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.6fr) minmax(120px, 1fr) minmax(150px, 1fr) minmax(140px, 1fr) auto auto;
+  gap: 12px;
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  box-shadow: var(--shadow);
+  padding: 16px;
+  margin-bottom: 22px;
+  animation: fadeUp 420ms ease forwards;
+}
+
+.filter-bar .input {
+  margin-bottom: 0;
+}
+
+.filter-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.filter-search-icon {
+  position: absolute;
+  left: 14px;
+  font-size: 0.95rem;
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+.filter-search .input {
+  padding-left: 40px;
+}
+
+@media (max-width: 900px) {
+  .filter-bar {
+    grid-template-columns: 1fr 1fr;
+  }
+  .filter-search {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 560px) {
+  .filter-bar {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Utility row under the hero search */
+.filter-utility {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+  margin-bottom: 8px;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: rgba(37, 99, 235, 0.1);
+  color: var(--primary);
+  font-weight: 700;
+  font-size: 0.82rem;
+  animation: popIn 240ms ease;
+}
+
+.detect-btn {
+  border-color: rgba(37, 99, 235, 0.25);
+}
+
+/* City pills become interactive buttons */
+.city-pill {
+  border: 1px solid rgba(37, 99, 235, 0.12);
+  transition: transform 0.15s ease, background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.city-pill:hover {
+  transform: translateY(-2px);
+  background: rgba(37, 99, 235, 0.16);
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.14);
+}
+
+.city-pill.active {
+  background: linear-gradient(120deg, var(--primary), var(--accent));
+  color: #fff;
+  border-color: transparent;
+}
+
+/* ============================================================
+   Skeleton loading placeholders
+   ============================================================ */
+.skeleton {
+  background: linear-gradient(90deg, rgba(148, 163, 184, 0.14) 25%, rgba(148, 163, 184, 0.28) 37%, rgba(148, 163, 184, 0.14) 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.3s ease infinite;
+  border-radius: 10px;
+}
+
+.skeleton-card {
+  cursor: default;
+}
+
+.skeleton-img {
+  width: 100%;
+  height: 220px;
+  border-radius: 0;
+}
+
+.skeleton-line {
+  height: 14px;
+  margin-bottom: 10px;
+}
+
+.skeleton-line.short {
+  width: 45%;
+}
+
+@keyframes shimmer {
+  0% { background-position: 100% 0; }
+  100% { background-position: 0 0; }
+}
+
+/* ============================================================
+   Image zoom wrappers
+   ============================================================ */
+.listing-media {
+  overflow: hidden;
+}
+
+.listing-media img {
+  transition: transform 0.5s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+.listing-card:hover .listing-media img,
+.card:hover .listing-media img {
+  transform: scale(1.06);
+}
+
+/* ============================================================
+   Richer entrance animations
+   ============================================================ */
+.option-card,
+.category-card,
+.benefit-card,
+.stat-card {
+  opacity: 0;
+  transform: translateY(12px);
+  animation: fadeUp 500ms ease forwards;
+}
+
+@keyframes popIn {
+  0% { opacity: 0; transform: scale(0.9); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* Hero content slides in on load */
+.home-copy > * {
+  animation: slideInLeft 600ms ease both;
+}
+
+.hero-visual {
+  animation: slideInRight 700ms ease both;
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-18px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(18px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Gentle float on the hero banner */
+.hero-banner {
+  animation: floatY 4s ease-in-out infinite;
+}
+
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
